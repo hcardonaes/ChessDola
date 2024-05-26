@@ -12,6 +12,8 @@ public:
   void setSpeed(int speed);
   void step(int steps);
   void stop();
+  Punto getEsquina() const;
+
 private:
   int pin1, pin2, pin3, pin4;
   Punto esquina;

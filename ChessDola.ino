@@ -54,7 +54,6 @@ Punto casillaToCoordenadas(Punto casilla) {
   return coordenadas;
 }
 
-
 // the setup function runs once when you press reset or power the board
 void setup() {
 	Serial.begin(9600);

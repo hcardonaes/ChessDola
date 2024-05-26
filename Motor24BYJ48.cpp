@@ -55,3 +55,7 @@ void Motor24BYJ48::stop() {
   digitalWrite(pin3, LOW);
   digitalWrite(pin4, LOW);
 }
+
+Punto Motor24BYJ48::getEsquina() const {
+  return esquina;
+}

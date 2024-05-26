@@ -80,6 +80,7 @@
     <TargetOSAndVersion>Arduino</TargetOSAndVersion>
   </PropertyGroup>
   <ItemGroup>
+    <ClCompile Include="Calculos.cpp" />
     <ClCompile Include="ChessDola.ino">
       <FileType>CppCode</FileType>
       <DeploymentContent>true</DeploymentContent>
@@ -95,6 +96,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Constants.h" />
+    <ClInclude Include="Calculos.h" />
     <ClInclude Include="Motor24BYJ48.h" />
     <ClInclude Include="__vm\.ChessDola.vsarduino.h" />
   </ItemGroup>
