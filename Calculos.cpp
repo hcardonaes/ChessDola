@@ -1,5 +1,6 @@
 #include "Calculos.h"
 #include <math.h>
+#include <Arduino.h>
 
 float calcularDistancia(Punto punto1, Punto punto2) {
   float dx = punto2.x - punto1.x;
@@ -9,8 +10,14 @@ float calcularDistancia(Punto punto1, Punto punto2) {
 
 float calcularDiferenciaDistancias(Motor24BYJ48 motor, Punto origenCarte, Punto destinoCarte) {
   float distanciaOrigen = calcularDistancia(motor.getEsquina(), origenCarte);
+  Serial.print("Distancia Origen: ");
+  Serial.println(distanciaOrigen);
+
   float distanciaDestino = calcularDistancia(motor.getEsquina(), destinoCarte);
-  return distanciaDestino - distanciaOrigen;
+  Serial.print("Distancia Destino: ");
+  Serial.println(distanciaDestino);
+
+  return  distanciaOrigen-distanciaDestino;
 }
 
 Orientacion calcularOrientacion(Punto origenCarte, Punto destinoCarte)

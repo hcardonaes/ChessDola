@@ -6,6 +6,7 @@
 #include "Motor24BYJ48.h"
 #include "Constants.h"
 #include <Arduino.h>
+#include "Calculos.h"
 
 Punto casillaOrigen;
 Punto casillaDestino;
@@ -53,11 +54,71 @@ Punto casillaToCoordenadas(Punto casilla) {
   coordenadas.y = (casilla.y - 1) * SQUARE_SIZE + SQUARE_SIZE/2;
   return coordenadas;
 }
+//..................................
+
+void testCalcularDistancia() {
+	Punto punto1 = { 0, 0 };
+	Punto punto2 = { 100, 100 };
+	float resultadoEsperado = 141.421356; // Reemplaza esto con el resultado esperado
+	float resultado = calcularDistancia(punto1, punto2);
+	Serial.print("Resultado: ");
+	Serial.println(resultado);
+
+	if (abs(resultado - resultadoEsperado) < 0.0001) {
+		Serial.println("La prueba 1 de calcularDistancia pasa");
+	}
+	else {
+		Serial.println("La prueba 1 de calcularDistancia FALLA");
+	}
+
+	punto1 = { 0, 0 };
+	punto2 = { 200, 200 };
+	resultadoEsperado = 282.8427; // Reemplaza esto con el resultado esperado
+	resultado = calcularDistancia(punto1, punto2);
+	if (abs(resultado - resultadoEsperado) < 0.0001) {
+		Serial.println("La prueba 2 de calcularDistancia pasa");
+	}
+	else {
+		Serial.println("La prueba 2 de calcularDistancia FALLA");
+	}
+}
+
+
+void testCalcularDiferenciaDistancias() {
+	Punto origen = { 35, 35 };
+	Punto destino = { 245, 245 };
+	float resultadoEsperado = 296.9848; // Reemplaza esto con el resultado esperado
+	float resultado = calcularDiferenciaDistancias(motor1, origen, destino);
+	Serial.print("Resultado: ");
+	Serial.println(resultado);
+
+	if (abs(resultado - resultadoEsperado) < 0.0001) {
+		Serial.println("La prueba 1 de calcularDiferenciaDistancias pasa");
+	}
+	else {
+		Serial.println("La prueba 1 de calcularDiferenciaDistancias FALLA");
+	}
+
+	origen = { 141, 141 };
+	destino = { 141, 141 };
+	resultadoEsperado = 0.0; // Reemplaza esto con el resultado esperado
+	resultado = calcularDiferenciaDistancias(motor1, origen, destino);
+	if (abs(resultado - resultadoEsperado) < 0.0001) {
+		Serial.println("La prueba 2 de calcularDiferenciaDistancias pasa");
+	}
+	else {
+		Serial.println("La prueba 2 de calcularDiferenciaDistancias FALLA");
+	}
+}
+
+//..................................
 
 // the setup function runs once when you press reset or power the board
 void setup() {
 	Serial.begin(9600);
 	inputString.reserve(200);
+	//testCalcularDiferenciaDistancias();
+	//testCalcularDistancia();
 }
 
 void loop() {
@@ -106,7 +167,30 @@ void loop() {
 		}
 		inputString = "";
 		stringComplete = false;
+		//Calcular la orientación
+		Orientacion orientacion = calcularOrientacion(origenCarte, destinoCarte);
+		if (debug)
+		{
+		Serial.print("Orientacion: ");
+		Serial.println(orientacion);
+		}
+		// Calcular la diferencia de distancias
+		float diferenciaDistancias1 = calcularDiferenciaDistancias(motor1, origenCarte, destinoCarte);
+		float diferenciaDistancias2 = calcularDiferenciaDistancias(motor2, origenCarte, destinoCarte);
+		float diferenciaDistancias3 = calcularDiferenciaDistancias(motor3, origenCarte, destinoCarte);
+		float diferenciaDistancias4 = calcularDiferenciaDistancias(motor4, origenCarte, destinoCarte);
+		if (debug)
+		{
+			Serial.print("Diferencia distancias 1: ");
+			Serial.println(diferenciaDistancias1);
+			Serial.print("Diferencia distancias 2: ");
+			Serial.println(diferenciaDistancias2);
+			Serial.print("Diferencia distancias 3: ");
+			Serial.println(diferenciaDistancias3);
+			Serial.print("Diferencia distancias 4: ");
+			Serial.println(diferenciaDistancias4);
 
+		}
 	}
 }
 
