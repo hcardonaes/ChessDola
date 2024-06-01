@@ -1,5 +1,7 @@
 #include "Arduino.h"
 #include "Motor24BYJ48.h"
+#include "Constants.h"
+#include "Calculos.h"
 
 Motor24BYJ48::Motor24BYJ48(int pin1, int pin2, int pin3, int pin4, Punto esquina)
   : pin1(pin1), pin2(pin2), pin3(pin3), pin4(pin4), esquina(esquina) {
@@ -7,47 +9,10 @@ Motor24BYJ48::Motor24BYJ48(int pin1, int pin2, int pin3, int pin4, Punto esquina
   pinMode(pin2, OUTPUT);
   pinMode(pin3, OUTPUT);
   pinMode(pin4, OUTPUT);
+  indiceSecuenciaPasos = 0;
 }
 
-void Motor24BYJ48::setSpeed(int speed) {
-  _speed = speed;
-}
 
-void Motor24BYJ48::step(int steps) {
-  int seq[8][4] = {
-      {HIGH, LOW, LOW, LOW},
-      {HIGH, HIGH, LOW, LOW},
-      {LOW, HIGH, LOW, LOW},
-      {LOW, HIGH, HIGH, LOW},
-      {LOW, LOW, HIGH, LOW},
-      {LOW, LOW, HIGH, HIGH},
-      {LOW, LOW, LOW, HIGH},
-      {HIGH, LOW, LOW, HIGH}
-  };
-
-  if (steps > 0) {
-    for (int i = 0; i < steps; i++) {
-      for (int j = 0; j < 8; j++) {
-        digitalWrite(pin1, seq[j][0]);
-        digitalWrite(pin2, seq[j][1]);
-        digitalWrite(pin3, seq[j][2]);
-        digitalWrite(pin4, seq[j][3]);
-        delay(_speed);
-      }
-    }
-  }
-  else {
-    for (int i = 0; i < abs(steps); i++) {
-      for (int j = 7; j >= 0; j--) {
-        digitalWrite(pin1, seq[j][0]);
-        digitalWrite(pin2, seq[j][1]);
-        digitalWrite(pin3, seq[j][2]);
-        digitalWrite(pin4, seq[j][3]);
-        delay(_speed);
-      }
-    }
-  }
-}
 
 void Motor24BYJ48::stop() {
   digitalWrite(pin1, LOW);
@@ -58,4 +23,48 @@ void Motor24BYJ48::stop() {
 
 Punto Motor24BYJ48::getEsquina() const {
   return esquina;
+}
+
+int Motor24BYJ48::getPasos()
+{
+  return pasos;
+}
+
+void Motor24BYJ48::setPasos(int pasos)
+{
+    this->pasos = pasos* factorPasos;
+}
+
+int Motor24BYJ48::getIntervalo()
+{
+  return intervalo;
+}
+
+void Motor24BYJ48::setIntervalo(int intervalo)
+{
+    this->intervalo = intervalo;
+}
+
+void Motor24BYJ48::darPaso() {
+  if (pasos == 0) {
+    return; // No hay pasos que dar
+  }
+  // Determinar el sentido del giro
+  int signo = pasos > 0 ? 1 : -1;
+
+  // Actualizar el índice de la secuencia de pasos
+  indiceSecuenciaPasos = (indiceSecuenciaPasos + signo) % 8;
+  if (indiceSecuenciaPasos < 0) {
+    indiceSecuenciaPasos += 8;
+  }
+
+  // Escribir la secuencia de pasos en los pines del motor
+  digitalWrite(pin1, secuenciaPasos[indiceSecuenciaPasos][0]);
+  digitalWrite(pin2, secuenciaPasos[indiceSecuenciaPasos][1]);
+  digitalWrite(pin3, secuenciaPasos[indiceSecuenciaPasos][2]);
+  digitalWrite(pin4, secuenciaPasos[indiceSecuenciaPasos][3]);
+
+  // Decrementar el número de pasos a dar
+  pasos -= signo;
+
 }

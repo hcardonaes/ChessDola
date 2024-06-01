@@ -8,7 +8,5 @@ float calcularDiferenciaDistancias(Motor24BYJ48 motor, Punto origenCarte, Punto 
 enum Orientacion { orN, orNE, orE, orSE, orS, orSW, orW, orNW };
 Orientacion calcularOrientacion(Punto origenCarte, Punto destinoCarte);
 
-
-
 #endif // CALCULOS_H
 
