@@ -53,3 +53,18 @@ Orientacion calcularOrientacion(Punto origenCarte, Punto destinoCarte)
     return orSE;
   }
 }
+
+bool relativoOrto(Punto origenCarte, Punto destinoCarte)
+{
+  float dx = destinoCarte.x - origenCarte.x;
+  float dy = destinoCarte.y - origenCarte.y;
+  if (dx == 0 || dy == 0) {
+    return true;
+    Serial.println("Es ortogonal");
+  }
+  if (abs(dx) == abs(dy)) {
+    Serial.println("Es diagonal");
+    return false;
+  }
+}
+

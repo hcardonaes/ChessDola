@@ -25,10 +25,10 @@ float Deltas[4] = { 0, 0, 0, 0 };
 
 
 // Definir los pines para cada motor
-int motor1Pins[4] = { 8,9,10,11 };
-int motor2Pins[4] = { 4,5,6,7 };
-int motor3Pins[4] = { 22,24,26,28};
-int motor4Pins[4] = { 40,42,44,46};
+int motor1Pins[4] = { 4,5,6,7 };
+int motor2Pins[4] = {8,9,10,11};
+int motor3Pins[4] = { 40,42,44,46};
+int motor4Pins[4] = { 22,24,26,28};
 
 Punto esquina1 = {0, 0};
 Punto esquina2 = {0, BOARD_SIZE};
@@ -106,6 +106,22 @@ void asignarIntervalos(Motor24BYJ48 motor1, Motor24BYJ48 motor2, Motor24BYJ48 mo
   Serial.println(motor4.getIntervalo());
 }
 
+void mueveOrto() {
+	Deltas[0] = calcularDiferenciaDistancias(motor1, origenCarte, destinoCarte);
+	Deltas[1] = calcularDiferenciaDistancias(motor2, origenCarte, destinoCarte);
+	Deltas[2] = calcularDiferenciaDistancias(motor3, origenCarte, destinoCarte);
+	Deltas[3] = calcularDiferenciaDistancias(motor4, origenCarte, destinoCarte);
+
+	motor1.setPasos(Deltas[0]);
+	motor2.setPasos(Deltas[1]);
+	motor3.setPasos(Deltas[2]);
+	motor4.setPasos(Deltas[3]);
+
+	asignarIntervalos(motor1, motor2, motor3, motor4);
+	asignado = true;
+}
+
+
 void moverMotoresSinc(Motor24BYJ48& motor1, unsigned long intervalo1, Motor24BYJ48& motor2, unsigned long intervalo2, Motor24BYJ48& motor3, unsigned long intervalo3, Motor24BYJ48& motor4, unsigned long intervalo4) {
 	static unsigned long ultimoPasoMotor1 = 0;
 	static unsigned long ultimoPasoMotor2 = 0;
@@ -135,23 +151,16 @@ void moverMotoresSinc(Motor24BYJ48& motor1, unsigned long intervalo1, Motor24BYJ
 	}
 }
 
-
-
-
-// the setup function runs once when you press reset or power the board
 void setup() {
 	Serial.begin(9600);
 	inputString.reserve(200);
 }
 
 void loop() {
-    // Leer los datos entrantes
-
-    if (Serial.available()) {
-        inputString = Serial.readStringUntil('\n');
-        stringComplete = true;
-    }
-
+	if (Serial.available()) {
+		inputString = Serial.readStringUntil('\n');
+		stringComplete = true;
+	}
 
 	if (stringComplete) {
 		// Parsear el string
@@ -165,98 +174,109 @@ void loop() {
 		capture = (inputString[3] == 'x');
 		if (debug)
 		{
-		Serial.print("input: ");
-		Serial.println(inputString);
-		Serial.print("Origen x: ");
-		Serial.println(casillaOrigen.x);
-		Serial.print("Origen y: ");
-		Serial.println(casillaOrigen.y);
-		Serial.print("Origen mm x: ");
-		Serial.println(origenCarte.x);
-		Serial.print("Origen mm y: ");
-		Serial.println(origenCarte.y);
-		Serial.print("Destino x: ");
-		Serial.println(casillaDestino.x);
-		Serial.print("Destino y: ");
-		Serial.println(casillaDestino.y);
-		Serial.print("Destino x mm: ");
-		Serial.println(destinoCarte.x);
-		Serial.print("Destino y mm: ");
-		Serial.println(destinoCarte.y);
-		Serial.print("Capture: ");
-		Serial.println(capture);
-		Serial.print("pieza: ");
-		Serial.println(pieza);
+			Serial.print("input: ");
+			Serial.println(inputString);
+			Serial.print("Origen x: ");
+			Serial.println(casillaOrigen.x);
+			Serial.print("Origen y: ");
+			Serial.println(casillaOrigen.y);
+			Serial.print("Origen mm x: ");
+			Serial.println(origenCarte.x);
+			Serial.print("Origen mm y: ");
+			Serial.println(origenCarte.y);
+			Serial.print("Destino x: ");
+			Serial.println(casillaDestino.x);
+			Serial.print("Destino y: ");
+			Serial.println(casillaDestino.y);
+			Serial.print("Destino x mm: ");
+			Serial.println(destinoCarte.x);
+			Serial.print("Destino y mm: ");
+			Serial.println(destinoCarte.y);
+			Serial.print("Capture: ");
+			Serial.println(capture);
+			Serial.print("pieza: ");
+			Serial.println(pieza);
 		}
 		inputString = "";
 		stringComplete = false;
 
-		//Calcular la orientación
-		Orientacion orientacion = calcularOrientacion(origenCarte, destinoCarte);
-		//---------------------------------------------------------
-		// Dentro de tu función loop, después de calcular la orientación
-		switch (orientacion) {
-		case orN:
-			// Código para la orientación Norte
-			//calcular diferencia de distancias Deltas
-			Deltas[0] = calcularDiferenciaDistancias(motor1, origenCarte, destinoCarte);
-			Deltas[1] = calcularDiferenciaDistancias(motor2, origenCarte, destinoCarte);
-			Deltas[2] = calcularDiferenciaDistancias(motor3, origenCarte, destinoCarte);
-			Deltas[3] = calcularDiferenciaDistancias(motor4, origenCarte, destinoCarte);
-
-			//asignar pasos a cada motor
-			motor1.setPasos(Deltas[0]);
-			motor2.setPasos(Deltas[1]);
-			motor3.setPasos(Deltas[2]);
-			motor4.setPasos(Deltas[3]);
-
-			//asignar intervalos proporcionales a los motores segun numero de pasos de cada uno
-			asignarIntervalos(motor1, motor2, motor3, motor4);
-			asignado = true;
-			break;
-
-		case orNE:
-			// Código para la orientación Noreste
-			break;
-		case orE:
-			// Código para la orientación Este
-			break;
-		case orSE:
-			// Código para la orientación Sureste
-			break;
-		case orS:
-			// Código para la orientación Sur
-			break;
-		case orSW:
-			// Código para la orientación Suroeste
-			break;
-		case orW:
-			// Código para la orientación Oeste
-			break;
-		case orNW:
-			// Código para la orientación Noroeste
-			break;
-		default:
-			// Código para cuando la orientación no coincide con ninguno de los casos anteriores
-			break;
+		if (relativoOrto(origenCarte, destinoCarte))
+		{
+			//mueveOrto();
 		}
-	}
-	if (asignado)
-	{
-	moverMotoresSinc(motor1, motor1.getIntervalo(), motor2, motor2.getIntervalo(), motor3, motor3.getIntervalo(), motor4, motor4.getIntervalo());
+		else
+		{
+			//mueve diagonal
+			Serial.println("Movimiento diagonal no definido aun");
+		}
+		//switch (orientacion) {
+		//case orN:
+		//	mueveOrto();
+		//	// Código para la orientación Norte
+		//	//calcular diferencia de distancias Deltas
+		//	Deltas[0] = calcularDiferenciaDistancias(motor1, origenCarte, destinoCarte);
+		//	Deltas[1] = calcularDiferenciaDistancias(motor2, origenCarte, destinoCarte);
+		//	Deltas[2] = calcularDiferenciaDistancias(motor3, origenCarte, destinoCarte);
+		//	Deltas[3] = calcularDiferenciaDistancias(motor4, origenCarte, destinoCarte);
+
+	//		asignar pasos a cada motor
+	//		motor1.setPasos(Deltas[0]);
+	//		motor2.setPasos(Deltas[1]);
+	//		motor3.setPasos(Deltas[2]);
+	//		motor4.setPasos(Deltas[3]);
+
+	//		////asignar intervalos proporcionales a los motores segun numero de pasos de cada uno
+	//		//asignarIntervalos(motor1, motor2, motor3, motor4);
+	//		//asignado = true;
+	//		break;
+
+	//	case orNE:
+	//		// Código para la orientación Noreste
+	//		break;
+	//	case orE:
+	//		// Código para la orientación Este
+	//		mueveOrto();
+	//		break;
+	//	case orSE:
+	//		// Código para la orientación Sureste
+	//		break;
+	//	case orS:
+	//		mueveOrto();
+	//		break;
+
+	//	case orSW:
+	//		// Código para la orientación Suroeste
+	//		break;
+	//	case orW:
+	//		// Código para la orientación Oeste
+	//		mueveOrto();
+	//		break;
+	//	case orNW:
+	//		// Código para la orientación Noroeste
+	//		break;
+	//	default:
+	//		// Código para cuando la orientación no coincide con ninguno de los casos anteriores
+	//		break;
+	//	}
+	//}
+		if (asignado)
+		{
+			moverMotoresSinc(motor1, motor1.getIntervalo(), motor2, motor2.getIntervalo(), motor3, motor3.getIntervalo(), motor4, motor4.getIntervalo());
+
+			if (motor1.getPasos() == 0 && motor2.getPasos() == 0 && motor3.getPasos() == 0 && motor4.getPasos() == 0)
+			{
+				asignado = false;
+				motor1.stop();
+				motor2.stop();
+				motor3.stop();
+				motor4.stop();
+
+			}
+
+		}
+
+
 
 	}
-	if (motor1.getPasos() == 0 && motor2.getPasos() == 0 && motor3.getPasos() == 0 && motor4.getPasos() == 0)
-	{
-		asignado = false;
-		motor1.stop();
-		motor2.stop();
-		motor3.stop();
-		motor4.stop();
-
-	}
-
-	
-
 }
 
