@@ -14,9 +14,13 @@ Punto origenCarte;
 Punto destinoCarte;
 bool capture;
 char pieza;
-bool debug = true;
+bool debug = false;
 bool asignado = false;
 
+struct Proyecciones {
+	Punto motor1;
+	Punto motor2;
+};
 
 // Definir los tipos de piezas de ajedrez
 enum Chesspieza { t, c, a, d, r, p };
@@ -35,12 +39,13 @@ Punto esquina2 = {0, BOARD_SIZE};
 Punto esquina3 = {BOARD_SIZE, BOARD_SIZE};
 Punto esquina4 = {BOARD_SIZE, 0};
 
+Punto casillaAnterior;
 
 // Crear las instancias de los motores
-Motor24BYJ48 motor1(motor1Pins[0], motor1Pins[1], motor1Pins[2], motor1Pins[3], esquina1);
-Motor24BYJ48 motor2(motor2Pins[0], motor2Pins[1], motor2Pins[2], motor2Pins[3], esquina2);
-Motor24BYJ48 motor3(motor3Pins[0], motor3Pins[1], motor3Pins[2], motor3Pins[3], esquina3);
-Motor24BYJ48 motor4(motor4Pins[0], motor4Pins[1], motor4Pins[2], motor4Pins[3], esquina4);
+Motor24BYJ48 motor1(motor1Pins[0], motor1Pins[1], motor1Pins[2], motor1Pins[3], esquina1, 1);
+Motor24BYJ48 motor2(motor2Pins[0], motor2Pins[1], motor2Pins[2], motor2Pins[3], esquina2, 2);
+Motor24BYJ48 motor3(motor3Pins[0], motor3Pins[1], motor3Pins[2], motor3Pins[3], esquina3, 3);
+Motor24BYJ48 motor4(motor4Pins[0], motor4Pins[1], motor4Pins[2], motor4Pins[3], esquina4, 4);
 
 String inputString = "";         // Un String para guardar los datos entrantes
 bool stringComplete = false;  // Si el string está completo
@@ -59,52 +64,133 @@ Punto casillaToCoordenadas(Punto casilla) {
   return coordenadas;
 }
 
+Proyecciones calcularProyecciones(Punto origen, Punto destino, Punto motor1, Punto motor2) {
+	// Calcular la pendiente de la línea
+	float m = (destino.y - origen.y) / (destino.x - origen.x);
 
-void asignarIntervalos(Motor24BYJ48 motor1, Motor24BYJ48 motor2, Motor24BYJ48 motor3, Motor24BYJ48 motor4) {
+	// Calcular el término independiente de la línea
+	float b = origen.y - m * origen.x;
 
-  int maxPasos = abs(motor1.getPasos());
-  if (abs(motor2.getPasos()) > maxPasos) {
-	maxPasos = abs(motor2.getPasos());
-  }
-  if (abs(motor3.getPasos()) > maxPasos){
-	  maxPasos = abs(motor3.getPasos());
-	  }
-  if (abs(motor4.getPasos()) > maxPasos) {
-	  maxPasos = abs(motor4.getPasos());
-  }
+	// Calcular las proyecciones de los motores sobre la línea
+	Proyecciones proyecciones;
+	proyecciones.motor1.x = (m * motor1.y + motor1.x - m * b) / (m * m + 1);
+	proyecciones.motor1.y = (m * m * motor1.y + m * motor1.x + b) / (m * m + 1);
+	proyecciones.motor2.x = (m * motor2.y + motor2.x - m * b) / (m * m + 1);
+	proyecciones.motor2.y = (m * m * motor2.y + m * motor2.x + b) / (m * m + 1);
 
-  float factorSincro = maxPasos * MIN_INTERVALO;//...................
-  Serial.print("Max pasos: ");
-  Serial.println(maxPasos);
-  Serial.print("Factor sincro: ");
-  Serial.println(factorSincro);
+	return proyecciones;
+	}
 
-  motor1.setIntervalo(abs(factorSincro/ motor1.getPasos()));
+bool estaDentroDelSegmento(Punto origen, Punto destino, Punto proyeccion) {
+	// Calcular los rangos de las coordenadas x e y
+	float minX = min(origen.x, destino.x);
+	float maxX = max(origen.x, destino.x);
+	float minY = min(origen.y, destino.y);
+	float maxY = max(origen.y, destino.y);
 
-  motor2.setIntervalo(abs(factorSincro / motor2.getPasos()));
-	
-  motor3.setIntervalo(abs(factorSincro / motor3.getPasos()));
-
-  motor4.setIntervalo(abs(factorSincro / motor4.getPasos()));
-
-  Serial.print("Pasos motor 1: ");
-  Serial.println(motor1.getPasos());
-  Serial.print("Pasos motor 2: ");
-  Serial.println(motor2.getPasos());
-  Serial.print("Pasos motor 3: ");
-  Serial.println(motor3.getPasos());
-  Serial.print("Pasos motor 4: ");
-  Serial.println(motor4.getPasos());
-  Serial.println();
-  Serial.print("Intervalo motor 1: ");	
-  Serial.println(motor1.getIntervalo());
-  Serial.print("Intervalo motor 2: ");
-  Serial.println(motor2.getIntervalo());
-  Serial.print("Intervalo motor 3: ");
-  Serial.println(motor3.getIntervalo());
-  Serial.print("Intervalo motor 4: ");
-  Serial.println(motor4.getIntervalo());
+	// Verificar si las coordenadas de la proyección están dentro de los rangos
+	return proyeccion.x >= minX && proyeccion.x <= maxX && proyeccion.y >= minY && proyeccion.y <= maxY;
 }
+
+
+//void asignarIntervalos(Motor24BYJ48 motor1, Motor24BYJ48 motor2, Motor24BYJ48 motor3, Motor24BYJ48 motor4) {
+//
+//  int maxPasos = abs(motor1.getPasos());
+//  if (abs(motor2.getPasos()) > maxPasos) {
+//	maxPasos = abs(motor2.getPasos());
+//  }
+//  if (abs(motor3.getPasos()) > maxPasos){
+//	  maxPasos = abs(motor3.getPasos());
+//	  }
+//  if (abs(motor4.getPasos()) > maxPasos) {
+//	  maxPasos = abs(motor4.getPasos());
+//  }
+//
+//  float factorSincro = maxPasos * MIN_INTERVALO;//...................
+//  Serial.print("Max pasos: ");
+//  Serial.println(maxPasos);
+//  Serial.print("Factor sincro: ");
+//  Serial.println(factorSincro);
+//
+//  motor1.setIntervalo(abs(factorSincro/ abs(motor1.getPasos())));
+//  motor2.setIntervalo(abs(factorSincro / abs(motor2.getPasos())));
+//  motor3.setIntervalo(abs(factorSincro / abs(motor3.getPasos())));
+//  motor4.setIntervalo(abs(factorSincro / abs(motor4.getPasos())));
+//
+//  Serial.print("Pasos motor 1: ");
+//  Serial.println(motor1.getPasos());
+//  Serial.print("Pasos motor 2: ");
+//  Serial.println(motor2.getPasos());
+//  Serial.print("Pasos motor 3: ");
+//  Serial.println(motor3.getPasos());
+//  Serial.print("Pasos motor 4: ");
+//  Serial.println(motor4.getPasos());
+//  Serial.println();
+//  Serial.print("Intervalo motor 1: ");	
+//  Serial.println(motor1.getIntervalo());
+//  Serial.print("Intervalo motor 2: ");
+//  Serial.println(motor2.getIntervalo());
+//  Serial.print("Intervalo motor 3: ");
+//  Serial.println(motor3.getIntervalo());
+//  Serial.print("Intervalo motor 4: ");
+//  Serial.println(motor4.getIntervalo());
+//}
+
+bool validarInputString(String input) {
+	if (input.length() != 6) {
+		return false;
+	}
+
+	char pieza = input[0];
+	char origenColumna = input[1];
+	char origenFila = input[2];
+	char destinoColumna = input[4];
+	char destinoFila = input[5];
+
+	//if (!isalpha(pieza) || !islower(pieza)) {
+	//	return false;
+	//}
+
+	if (origenColumna < 'a' || origenColumna > 'h' || destinoColumna < 'a' || destinoColumna > 'h') {
+		return false;
+	}
+
+	if (origenFila < '1' || origenFila > '8' || destinoFila < '1' || destinoFila > '8') {
+		return false;
+	}
+
+	return true;
+}
+
+
+void asignarIntervalos(Motor24BYJ48& motor1, Motor24BYJ48& motor2, Motor24BYJ48& motor3, Motor24BYJ48& motor4) {
+	int maxPasos = max(max(abs(motor1.getPasos()), abs(motor2.getPasos())), max(abs(motor3.getPasos()), abs(motor4.getPasos())));
+
+	motor1.setIntervalo(MIN_INTERVALO * maxPasos / abs(motor1.getPasos()));
+	motor2.setIntervalo(MIN_INTERVALO * maxPasos / abs(motor2.getPasos()));
+	motor3.setIntervalo(MIN_INTERVALO * maxPasos / abs(motor3.getPasos()));
+	motor4.setIntervalo(MIN_INTERVALO * maxPasos / abs(motor4.getPasos()));
+
+	Serial.print("Pasos motor 1: ");
+	Serial.println(motor1.getPasos());
+	Serial.print("Pasos motor 2: ");
+	Serial.println(motor2.getPasos());
+	Serial.print("Pasos motor 3: ");
+	Serial.println(motor3.getPasos());
+	Serial.print("Pasos motor 4: ");
+	Serial.println(motor4.getPasos());
+	Serial.println();
+
+	Serial.print("Intervalo motor 1: ");
+	Serial.println(motor1.getIntervalo());
+	Serial.print("Intervalo motor 2: ");
+	Serial.println(motor2.getIntervalo());
+	Serial.print("Intervalo motor 3: ");
+	Serial.println(motor3.getIntervalo());
+	Serial.print("Intervalo motor 4: ");
+	Serial.println(motor4.getIntervalo());
+}
+
 
 void mueveOrto() {
 	Deltas[0] = calcularDiferenciaDistancias(motor1, origenCarte, destinoCarte);
@@ -121,6 +207,141 @@ void mueveOrto() {
 	asignado = true;
 }
 
+void mueveDiagonalOriginal() {
+	//mueve diagonal
+	// determina cuales son los motores laterales
+	Motor24BYJ48* motorLateral1;
+	Motor24BYJ48* motorLateral2;
+	Motor24BYJ48* motorDiagonal3;
+	Motor24BYJ48* motorDiagonal4;
+
+	if (destinoCarte.x > origenCarte.x && destinoCarte.y > origenCarte.y) {
+		// Movimiento hacia arriba a la derecha
+		motorLateral1 = &motor2;
+		motorLateral2 = &motor3;
+		motorDiagonal3 = &motor4;
+		motorDiagonal4 = &motor1;
+	}
+	else if (destinoCarte.x < origenCarte.x && destinoCarte.y > origenCarte.y) {
+		// Movimiento hacia arriba a la izquierda
+		motorLateral1 = &motor3;
+		motorLateral2 = &motor4;
+		motorDiagonal3 = &motor1;
+		motorDiagonal4 = &motor2;
+	}
+	else if (destinoCarte.x < origenCarte.x && destinoCarte.y < origenCarte.y) {
+		// Movimiento hacia abajo a la izquierda
+		motorLateral1 = &motor4;
+		motorLateral2 = &motor1;
+		motorDiagonal3 = &motor2;
+		motorDiagonal4 = &motor3;
+	}
+	else if (destinoCarte.x > origenCarte.x && destinoCarte.y < origenCarte.y) {
+		// Movimiento hacia abajo a la derecha
+		motorLateral1 = &motor1;
+		motorLateral2 = &motor2;
+		motorDiagonal3 = &motor3;
+		motorDiagonal4 = &motor4;
+	}
+
+	// calcular proyecciones
+	Proyecciones proyecciones = calcularProyecciones(origenCarte, destinoCarte, motorLateral1->getEsquina(), motorLateral2->getEsquina());
+
+	// verificar si las proyecciones estan dentro del segmento
+	if (estaDentroDelSegmento(origenCarte, destinoCarte, proyecciones.motor1) && estaDentroDelSegmento(origenCarte, destinoCarte, proyecciones.motor2)) {
+		//calcular distancias desde las esquinas de los motores laterales al punto de proyeccion
+		float distanciaDestinoIntermedio1 = calcularDistancia(motorLateral1->getEsquina(), proyecciones.motor1);
+		float distanciaDestinoIntermedio2 = calcularDistancia(motorLateral2->getEsquina(), proyecciones.motor2);
+	}
+
+	Serial.println("Movimiento diagonal en pruebas");
+}
+
+void mueveDiagonal() {
+	Motor24BYJ48* motorLateral1;
+	Motor24BYJ48* motorLateral2;
+	Motor24BYJ48* motorDiagonal3;
+	Motor24BYJ48* motorDiagonal4;
+
+	// ... código existente para determinar los motores laterales ...
+	if (destinoCarte.x > origenCarte.x && destinoCarte.y > origenCarte.y) {
+		// Movimiento hacia arriba a la derecha
+		motorLateral1 = &motor2;
+		motorLateral2 = &motor3;
+		motorDiagonal3 = &motor4;
+		motorDiagonal4 = &motor1;
+	}
+	else if (destinoCarte.x < origenCarte.x && destinoCarte.y > origenCarte.y) {
+		// Movimiento hacia arriba a la izquierda
+		motorLateral1 = &motor3;
+		motorLateral2 = &motor4;
+		motorDiagonal3 = &motor1;
+		motorDiagonal4 = &motor2;
+	}
+	else if (destinoCarte.x < origenCarte.x && destinoCarte.y < origenCarte.y) {
+		// Movimiento hacia abajo a la izquierda
+		motorLateral1 = &motor4;
+		motorLateral2 = &motor1;
+		motorDiagonal3 = &motor2;
+		motorDiagonal4 = &motor3;
+	}
+	else if (destinoCarte.x > origenCarte.x && destinoCarte.y < origenCarte.y) {
+		// Movimiento hacia abajo a la derecha
+		motorLateral1 = &motor1;
+		motorLateral2 = &motor2;
+		motorDiagonal3 = &motor3;
+		motorDiagonal4 = &motor4;
+	}
+
+	// calcular proyecciones
+	Proyecciones proyecciones = calcularProyecciones(origenCarte, destinoCarte, motorLateral1->getEsquina(), motorLateral2->getEsquina());
+
+	// verificar si las proyecciones estan dentro del segmento
+	bool proyeccionMotor1EnSegmento = estaDentroDelSegmento(origenCarte, destinoCarte, proyecciones.motor1);
+	bool proyeccionMotor2EnSegmento = estaDentroDelSegmento(origenCarte, destinoCarte, proyecciones.motor2);
+
+	if (!proyeccionMotor1EnSegmento && !proyeccionMotor2EnSegmento) {
+		// Ningún motor lateral se proyecta sobre la trayectoria
+		mueveOrto();
+	}
+	else if (proyeccionMotor1EnSegmento ^ proyeccionMotor2EnSegmento) {
+		// Solo un motor lateral se proyecta sobre la trayectoria
+		// Primera etapa: mover a la proyección
+		destinoCarte = proyeccionMotor1EnSegmento ? proyecciones.motor1 : proyecciones.motor2;
+		mueveOrto();
+
+		// Esperar a que termine el movimiento
+		moverMotoresHastaFinal(motor1, motor2, motor3, motor4);
+
+		// Segunda etapa: mover al destino final
+		origenCarte = destinoCarte;
+		destinoCarte = casillaToCoordenadas(casillaDestino);
+		mueveOrto();
+	}
+	else {
+		// Ambos motores laterales se proyectan sobre la trayectoria
+		// Primera etapa: mover a la primera proyección
+		destinoCarte = proyecciones.motor1;
+		mueveOrto();
+
+		// Esperar a que termine el movimiento
+		moverMotoresHastaFinal(motor1, motor2, motor3, motor4);
+
+		// Segunda etapa: mover a la segunda proyección
+		origenCarte = destinoCarte;
+		destinoCarte = proyecciones.motor2;
+		mueveOrto();
+
+		// Esperar a que termine el movimiento
+		moverMotoresHastaFinal(motor1, motor2, motor3, motor4);
+
+		// Tercera etapa: mover al destino final
+		origenCarte = destinoCarte;
+		destinoCarte = casillaToCoordenadas(casillaDestino);
+		mueveOrto();
+	}
+}
+
 
 void moverMotoresSinc(Motor24BYJ48& motor1, unsigned long intervalo1, Motor24BYJ48& motor2, unsigned long intervalo2, Motor24BYJ48& motor3, unsigned long intervalo3, Motor24BYJ48& motor4, unsigned long intervalo4) {
 	static unsigned long ultimoPasoMotor1 = 0;
@@ -132,24 +353,51 @@ void moverMotoresSinc(Motor24BYJ48& motor1, unsigned long intervalo1, Motor24BYJ
 
 	if (tiempoActual - ultimoPasoMotor1 >= intervalo1) {
 		motor1.darPaso();
+		//Serial.print("Dando paso motor 1: ");
+		//Serial.println(motor1.getPasos());
+
 		ultimoPasoMotor1 = tiempoActual;
 	}
 
 	if (tiempoActual - ultimoPasoMotor2 >= intervalo2) {
 		motor2.darPaso();
+		//Serial.print("Dando paso motor 2: ");
+		//Serial.println(motor2.getPasos());
+
 		ultimoPasoMotor2 = tiempoActual;
 	}
 
 	if (tiempoActual - ultimoPasoMotor3 >= intervalo3) {
 		motor3.darPaso();
+		//Serial.println("Dando paso motor 3; ");
+		//Serial.println(motor3.getPasos());
+
 		ultimoPasoMotor3 = tiempoActual;
 	}
 
 	if (tiempoActual - ultimoPasoMotor4 >= intervalo4) {
 		motor4.darPaso();
+		//Serial.println("Dando paso motor 4");
+		//Serial.println(motor4.getPasos());
+
 		ultimoPasoMotor4 = tiempoActual;
 	}
 }
+
+void moverMotoresHastaFinal(Motor24BYJ48& motor1, Motor24BYJ48& motor2, Motor24BYJ48& motor3, Motor24BYJ48& motor4) {
+	while (asignado) {
+		moverMotoresSinc(motor1, motor1.getIntervalo(), motor2, motor2.getIntervalo(), motor3, motor3.getIntervalo(), motor4, motor4.getIntervalo());
+
+		if (motor1.getPasos() == 0 && motor2.getPasos() == 0 && motor3.getPasos() == 0 && motor4.getPasos() == 0) {
+			asignado = false;
+			motor1.stop();
+			motor2.stop();
+			motor3.stop();
+			motor4.stop();
+		}
+	}
+}
+
 
 void setup() {
 	Serial.begin(9600);
@@ -163,15 +411,31 @@ void loop() {
 	}
 
 	if (stringComplete) {
-		// Parsear el string
-		// Ejemplo de string: "td2-d4"     
-
-		pieza = inputString[0];
-		casillaOrigen = notacionToCasilla(inputString[1], inputString[2]);
-		origenCarte = casillaToCoordenadas(casillaOrigen);
-		casillaDestino = notacionToCasilla(inputString[4], inputString[5]);
-		destinoCarte = casillaToCoordenadas(casillaDestino);
-		capture = (inputString[3] == 'x');
+		if (inputString.length() == 2) {
+			casillaOrigen = casillaAnterior;
+			casillaDestino = notacionToCasilla(inputString[0], inputString[1]);
+			origenCarte = casillaToCoordenadas(casillaOrigen);
+			destinoCarte = casillaToCoordenadas(casillaDestino);
+			capture = false;
+			pieza = 'p';
+		}
+		else {
+			if (!validarInputString(inputString)) {
+				Serial.println();
+				Serial.println("Entrada invalida");
+				Serial.println("Intente de nuevo");
+				Serial.print(inputString);
+				inputString = "";
+				stringComplete = false;
+				return;
+			}
+			pieza = inputString[0];
+			casillaOrigen = notacionToCasilla(inputString[1], inputString[2]);
+			origenCarte = casillaToCoordenadas(casillaOrigen);
+			casillaDestino = notacionToCasilla(inputString[4], inputString[5]);
+			destinoCarte = casillaToCoordenadas(casillaDestino);
+			capture = (inputString[3] == 'x');
+		}
 		if (debug)
 		{
 			Serial.print("input: ");
@@ -199,69 +463,21 @@ void loop() {
 		}
 		inputString = "";
 		stringComplete = false;
+		casillaAnterior = casillaDestino;
 
 		if (relativoOrto(origenCarte, destinoCarte))
 		{
-			//mueveOrto();
+			mueveOrto();
 		}
 		else
 		{
-			//mueve diagonal
-			Serial.println("Movimiento diagonal no definido aun");
+			mueveDiagonal();
 		}
-		//switch (orientacion) {
-		//case orN:
-		//	mueveOrto();
-		//	// Código para la orientación Norte
-		//	//calcular diferencia de distancias Deltas
-		//	Deltas[0] = calcularDiferenciaDistancias(motor1, origenCarte, destinoCarte);
-		//	Deltas[1] = calcularDiferenciaDistancias(motor2, origenCarte, destinoCarte);
-		//	Deltas[2] = calcularDiferenciaDistancias(motor3, origenCarte, destinoCarte);
-		//	Deltas[3] = calcularDiferenciaDistancias(motor4, origenCarte, destinoCarte);
 
-	//		asignar pasos a cada motor
-	//		motor1.setPasos(Deltas[0]);
-	//		motor2.setPasos(Deltas[1]);
-	//		motor3.setPasos(Deltas[2]);
-	//		motor4.setPasos(Deltas[3]);
-
-	//		////asignar intervalos proporcionales a los motores segun numero de pasos de cada uno
-	//		//asignarIntervalos(motor1, motor2, motor3, motor4);
-	//		//asignado = true;
-	//		break;
-
-	//	case orNE:
-	//		// Código para la orientación Noreste
-	//		break;
-	//	case orE:
-	//		// Código para la orientación Este
-	//		mueveOrto();
-	//		break;
-	//	case orSE:
-	//		// Código para la orientación Sureste
-	//		break;
-	//	case orS:
-	//		mueveOrto();
-	//		break;
-
-	//	case orSW:
-	//		// Código para la orientación Suroeste
-	//		break;
-	//	case orW:
-	//		// Código para la orientación Oeste
-	//		mueveOrto();
-	//		break;
-	//	case orNW:
-	//		// Código para la orientación Noroeste
-	//		break;
-	//	default:
-	//		// Código para cuando la orientación no coincide con ninguno de los casos anteriores
-	//		break;
-	//	}
-	//}
 		if (asignado)
 		{
-			moverMotoresSinc(motor1, motor1.getIntervalo(), motor2, motor2.getIntervalo(), motor3, motor3.getIntervalo(), motor4, motor4.getIntervalo());
+			//moverMotoresSinc(motor1, motor1.getIntervalo(), motor2, motor2.getIntervalo(), motor3, motor3.getIntervalo(), motor4, motor4.getIntervalo());
+			moverMotoresHastaFinal(motor1, motor2, motor3, motor4);
 
 			if (motor1.getPasos() == 0 && motor2.getPasos() == 0 && motor3.getPasos() == 0 && motor4.getPasos() == 0)
 			{
@@ -270,13 +486,8 @@ void loop() {
 				motor2.stop();
 				motor3.stop();
 				motor4.stop();
-
 			}
-
 		}
-
-
-
 	}
 }
 

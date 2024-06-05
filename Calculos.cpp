@@ -10,12 +10,16 @@ float calcularDistancia(Punto punto1, Punto punto2) {
 
 float calcularDiferenciaDistancias(Motor24BYJ48 motor, Punto origenCarte, Punto destinoCarte) {
   float distanciaOrigen = calcularDistancia(motor.getEsquina(), origenCarte);
-  ////Serial.print("Distancia Origen: ");
-  ////Serial.println(distanciaOrigen);
+  Serial.print("Distancia Origen: ");
+  Serial.println(distanciaOrigen);
 
   float distanciaDestino = calcularDistancia(motor.getEsquina(), destinoCarte);
-  ////Serial.print("Distancia Destino: ");
-  ////Serial.println(distanciaDestino);
+  Serial.print("Distancia Destino: ");
+  Serial.println(distanciaDestino);
+
+  Serial.print("Delta: ");
+  Serial.println(distanciaOrigen - distanciaDestino);
+  Serial.println();
 
   return  distanciaOrigen-distanciaDestino;
 }

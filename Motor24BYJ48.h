@@ -8,16 +8,16 @@ struct Punto {
 
 class Motor24BYJ48 {
 public:
-  Motor24BYJ48(int pin1, int pin2, int pin3, int pin4, Punto esquina);
+  Motor24BYJ48(int pin1, int pin2, int pin3, int pin4, Punto esquina, int numMotor);
   void stop();
-  Punto getEsquina() const;
-  int getPasos();
-  void setPasos(int pasos);
-  int getIntervalo();
-  void setIntervalo(int intervalo);
+  Punto getEsquina()const;
+  float getPasos();
+  void setPasos(float pasos);
+  float getIntervalo();
+  void setIntervalo(float intervalo);
   void darPaso();
   int indiceSecuenciaPasos;
-
+  int numMotor;
 
 private:
   int pin1, pin2, pin3, pin4;

@@ -3,7 +3,7 @@
 #include "Constants.h"
 #include "Calculos.h"
 
-Motor24BYJ48::Motor24BYJ48(int pin1, int pin2, int pin3, int pin4, Punto esquina)
+Motor24BYJ48::Motor24BYJ48(int pin1, int pin2, int pin3, int pin4, Punto esquina, int numMotor)
   : pin1(pin1), pin2(pin2), pin3(pin3), pin4(pin4), esquina(esquina) {
   pinMode(pin1, OUTPUT);
   pinMode(pin2, OUTPUT);
@@ -21,26 +21,27 @@ void Motor24BYJ48::stop() {
   digitalWrite(pin4, LOW);
 }
 
+
 Punto Motor24BYJ48::getEsquina() const {
   return esquina;
 }
 
-int Motor24BYJ48::getPasos()
+float Motor24BYJ48::getPasos()
 {
   return pasos;
 }
 
-void Motor24BYJ48::setPasos(int pasos)
+void Motor24BYJ48::setPasos(float pasos)
 {
-    this->pasos = pasos* factorPasos;
+    this->pasos = pasos * factorPasos;
 }
 
-int Motor24BYJ48::getIntervalo()
+float Motor24BYJ48::getIntervalo()
 {
   return intervalo;
 }
 
-void Motor24BYJ48::setIntervalo(int intervalo)
+void Motor24BYJ48::setIntervalo(float intervalo)
 {
     this->intervalo = intervalo;
 }
