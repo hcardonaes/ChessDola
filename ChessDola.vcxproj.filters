@@ -24,9 +24,6 @@
     <ClCompile Include="Motor24BYJ48.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ChesDola.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Motor24BYJ48.h">
@@ -36,9 +33,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="__vm\.ChessDola.vsarduino.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ChesDola.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
