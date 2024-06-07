@@ -24,21 +24,21 @@
     <ClCompile Include="Motor24BYJ48.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Calculos.cpp">
+    <ClCompile Include="ChesDola.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="__vm\.ChessDola.vsarduino.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Motor24BYJ48.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Constants.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Calculos.h">
+    <ClInclude Include="__vm\.ChessDola.vsarduino.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ChesDola.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

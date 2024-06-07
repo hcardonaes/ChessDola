@@ -1,7 +1,6 @@
 #include "Arduino.h"
 #include "Motor24BYJ48.h"
 #include "Constants.h"
-#include "Calculos.h"
 
 Motor24BYJ48::Motor24BYJ48(int pin1, int pin2, int pin3, int pin4, Punto esquina, int numMotor)
   : pin1(pin1), pin2(pin2), pin3(pin3), pin4(pin4), esquina(esquina) {
