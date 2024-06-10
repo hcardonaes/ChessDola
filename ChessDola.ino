@@ -350,90 +350,90 @@ void setup() {
 }
 
 void loop(){
-	//if (Serial.available()) {
-	//	inputString = Serial.readStringUntil('\n');
-	//	stringComplete = true;
-	//}
+	if (Serial.available()) {
+		inputString = Serial.readStringUntil('\n');
+		stringComplete = true;
+	}
 
-	//if (stringComplete) {
-	//	if (inputString.length() == 2) {
-	//		casillaOrigen = casillaAnterior;
-	//		casillaDestino = notacionChessToOrdinalCasilla(inputString[0], inputString[1]);
-	//		origenCarte = casillaToCoordenadas(casillaOrigen);
-	//		destinoCarte = casillaToCoordenadas(casillaDestino);
-	//		capture = false;
-	//		pieza = 'p';
-	//	}
-	//	else {
-	//		if (!validarInputString(inputString)) {
-	//			Serial.println();
-	//			Serial.println("Entrada invalida");
-	//			Serial.println("Intente de nuevo");
-	//			Serial.print(inputString);
-	//			inputString = "";
-	//			stringComplete = false;
-	//			return;
-	//		}
-	//		pieza = inputString[0];
-	//		casillaOrigen = notacionChessToOrdinalCasilla(inputString[1], inputString[2]);
-	//		origenCarte = casillaToCoordenadas(casillaOrigen);
-	//		casillaDestino = notacionChessToOrdinalCasilla(inputString[4], inputString[5]);
-	//		destinoCarte = casillaToCoordenadas(casillaDestino);
-	//		capture = (inputString[3] == 'x');
-	//	}
-	//	if (debug)
-	//	{
-	//		Serial.print("input: ");
-	//		Serial.println(inputString);
-	//		Serial.print("Origen x: ");
-	//		Serial.println(casillaOrigen.x);
-	//		Serial.print("Origen y: ");
-	//		Serial.println(casillaOrigen.y);
-	//		Serial.print("Origen mm x: ");
-	//		Serial.println(origenCarte.x);
-	//		Serial.print("Origen mm y: ");
-	//		Serial.println(origenCarte.y);
-	//		Serial.print("Destino x: ");
-	//		Serial.println(casillaDestino.x);
-	//		Serial.print("Destino y: ");
-	//		Serial.println(casillaDestino.y);
-	//		Serial.print("Destino x mm: ");
-	//		Serial.println(destinoCarte.x);
-	//		Serial.print("Destino y mm: ");
-	//		Serial.println(destinoCarte.y);
-	//		Serial.print("Capture: ");
-	//		Serial.println(capture);
-	//		Serial.print("pieza: ");
-	//		Serial.println(pieza);
-	//	}
-	//	inputString = "";
-	//	stringComplete = false;
-	//	casillaAnterior = casillaDestino;
+	if (stringComplete) {
+		if (inputString.length() == 2) {
+			casillaOrigen = casillaAnterior;
+			casillaDestino = notacionChessToOrdinalCasilla(inputString[0], inputString[1]);
+			origenCarte = casillaToCoordenadas(casillaOrigen);
+			destinoCarte = casillaToCoordenadas(casillaDestino);
+			capture = false;
+			pieza = 'p';
+		}
+		else {
+			if (!validarInputString(inputString)) {
+				Serial.println();
+				Serial.println("Entrada invalida");
+				Serial.println("Intente de nuevo");
+				Serial.print(inputString);
+				inputString = "";
+				stringComplete = false;
+				return;
+			}
+			pieza = inputString[0];
+			casillaOrigen = notacionChessToOrdinalCasilla(inputString[1], inputString[2]);
+			origenCarte = casillaToCoordenadas(casillaOrigen);
+			casillaDestino = notacionChessToOrdinalCasilla(inputString[4], inputString[5]);
+			destinoCarte = casillaToCoordenadas(casillaDestino);
+			capture = (inputString[3] == 'x');
+		}
+		if (debug)
+		{
+			Serial.print("input: ");
+			Serial.println(inputString);
+			Serial.print("Origen x: ");
+			Serial.println(casillaOrigen.x);
+			Serial.print("Origen y: ");
+			Serial.println(casillaOrigen.y);
+			Serial.print("Origen mm x: ");
+			Serial.println(origenCarte.x);
+			Serial.print("Origen mm y: ");
+			Serial.println(origenCarte.y);
+			Serial.print("Destino x: ");
+			Serial.println(casillaDestino.x);
+			Serial.print("Destino y: ");
+			Serial.println(casillaDestino.y);
+			Serial.print("Destino x mm: ");
+			Serial.println(destinoCarte.x);
+			Serial.print("Destino y mm: ");
+			Serial.println(destinoCarte.y);
+			Serial.print("Capture: ");
+			Serial.println(capture);
+			Serial.print("pieza: ");
+			Serial.println(pieza);
+		}
+		inputString = "";
+		stringComplete = false;
+		casillaAnterior = casillaDestino;
 
-	//	if (relativoOrto(origenCarte, destinoCarte))
-	//	{
-	//		mueveOrto();
-	//	}
-	//	else
-	//	{
-	//		mueveDiagonal();
-	//	}
+		if (relativoOrto(origenCarte, destinoCarte))
+		{
+			mueveOrto();
+		}
+		else
+		{
+			mueveDiagonal();
+		}
 
-	//	if (asignado)
-	//	{
-	//		//moverMotoresSinc(motor1, motor1.getIntervalo(), motor2, motor2.getIntervalo(), motor3, motor3.getIntervalo(), motor4, motor4.getIntervalo());
-	//		moverMotoresHastaFinal(motor1, motor2, motor3, motor4);
+		if (asignado)
+		{
+			//moverMotoresSinc(motor1, motor1.getIntervalo(), motor2, motor2.getIntervalo(), motor3, motor3.getIntervalo(), motor4, motor4.getIntervalo());
+			moverMotoresHastaFinal(motor1, motor2, motor3, motor4);
 
-	//		if (motor1.getPasos() == 0 && motor2.getPasos() == 0 && motor3.getPasos() == 0 && motor4.getPasos() == 0)
-	//		{
-	//			asignado = false;
-	//			motor1.stop();
-	//			motor2.stop();
-	//			motor3.stop();
-	//			motor4.stop();
-	//		}
-	//	}
-	//}
+			if (motor1.getPasos() == 0 && motor2.getPasos() == 0 && motor3.getPasos() == 0 && motor4.getPasos() == 0)
+			{
+				asignado = false;
+				motor1.stop();
+				motor2.stop();
+				motor3.stop();
+				motor4.stop();
+			}
+		}
+	}
 	//Punto origenCarte = { 0, 0 };
 	//Punto destinoCarte = { 30, 40 };
 	//Serial.println("Origen: ");	
