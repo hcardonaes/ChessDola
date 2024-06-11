@@ -3,7 +3,7 @@
 #include "Constants.h"
 
 Motor24BYJ48::Motor24BYJ48(int pin1, int pin2, int pin3, int pin4, Punto esquina, int numMotor)
-  : pin1(pin1), pin2(pin2), pin3(pin3), pin4(pin4), esquina(esquina) {
+  : pin1(pin1), pin2(pin2), pin3(pin3), pin4(pin4), esquina(esquina), numMotor(numMotor) {
   pinMode(pin1, OUTPUT);
   pinMode(pin2, OUTPUT);
   pinMode(pin3, OUTPUT);
@@ -40,7 +40,7 @@ float Motor24BYJ48::getIntervalo()
   return intervalo;
 }
 
-void Motor24BYJ48::setIntervalo(float intervalo)
+void Motor24BYJ48::setIntervalo(long intervalo)
 {
     this->intervalo = intervalo;
 }

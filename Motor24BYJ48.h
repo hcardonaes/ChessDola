@@ -14,7 +14,7 @@ public:
   float getPasos();
   void setPasos(float pasos);
   float getIntervalo();
-  void setIntervalo(float intervalo);
+  void setIntervalo(long intervalo);
   void darPaso();
   int indiceSecuenciaPasos;
   int numMotor;
@@ -23,7 +23,7 @@ private:
   int pin1, pin2, pin3, pin4;
   Punto esquina;
   int pasos = 0;
-  int intervalo = 1000;
+  long intervalo = 1000;
 };
 
 #endif // MOTOR24BYJ48_H
