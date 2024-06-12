@@ -204,6 +204,8 @@ void asignarIntervalos(Motor24BYJ48& motor1, Motor24BYJ48& motor2, Motor24BYJ48&
 	motor2.setIntervalo(calculoIntervalo2);
 	//ñ Serial.print("Calculo intervalo 3: ");
 	//ñ Serial.println(calculoIntervalo3);
+
+
 	motor3.setIntervalo(calculoIntervalo3);
 	//ñ Serial.print("Calculo intervalo 4: ");
 	//ñ Serial.println(calculoIntervalo4);
@@ -436,6 +438,9 @@ void moverMotoresHastaFinal(Motor24BYJ48& motor1, Motor24BYJ48& motor2, Motor24B
 			motor2.stop();
 			motor3.stop();
 			motor4.stop();
+			Serial.println("Instrucción procesada: " + instruccion);
+
+
 		}
 	}
 }
@@ -527,6 +532,7 @@ void loop(){
 				motor2.stop();
 				motor3.stop();
 				motor4.stop();
+				Serial.println("Instrucción procesada: " + inputString);
 			}
 		}
 	}
