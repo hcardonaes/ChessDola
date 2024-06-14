@@ -431,16 +431,23 @@ void moverMotoresSinc(Motor24BYJ48& motor1, unsigned long intervalo1, Motor24BYJ
 void moverMotoresHastaFinal(Motor24BYJ48& motor1, Motor24BYJ48& motor2, Motor24BYJ48& motor3, Motor24BYJ48& motor4) {
 	while (asignado) {
 		moverMotoresSinc(motor1, motor1.getIntervalo(), motor2, motor2.getIntervalo(), motor3, motor3.getIntervalo(), motor4, motor4.getIntervalo());
-
-		if (motor1.getPasos() == 0 && motor2.getPasos() == 0 && motor3.getPasos() == 0 && motor4.getPasos() == 0) {
+		if (motor1.getPasos() == 0 && motor2.getPasos() == 0 && motor3.getPasos() == 0 && motor4.getPasos() == 0)
+		{
 			asignado = false;
 			motor1.stop();
 			motor2.stop();
 			motor3.stop();
 			motor4.stop();
-			Serial.println("Instrucción procesada: " + instruccion);
 
+			////ñ
+			//while (Serial.available() > 0) {
+			//	// Lee el byte entrante:
+			//	char basura = Serial.read();
+			//	// Opcional: Hacer algo con el byte leído, si es necesario.
+			//}
 
+			// Ahora el buffer de entrada está limpio, puedes proceder a enviar tu respuesta
+			Serial.println("Instruccion procesada");
 		}
 	}
 }
@@ -522,18 +529,25 @@ void loop(){
 
 		if (asignado)
 		{
-			//moverMotoresSinc(motor1, motor1.getIntervalo(), motor2, motor2.getIntervalo(), motor3, motor3.getIntervalo(), motor4, motor4.getIntervalo());
 			moverMotoresHastaFinal(motor1, motor2, motor3, motor4);
+			//if (motor1.getPasos() == 0 && motor2.getPasos() == 0 && motor3.getPasos() == 0 && motor4.getPasos() == 0)
+			//{
+			//	asignado = false;
+			//	motor1.stop();
+			//	motor2.stop();
+			//	motor3.stop();
+			//	motor4.stop();
 
-			if (motor1.getPasos() == 0 && motor2.getPasos() == 0 && motor3.getPasos() == 0 && motor4.getPasos() == 0)
-			{
-				asignado = false;
-				motor1.stop();
-				motor2.stop();
-				motor3.stop();
-				motor4.stop();
-				Serial.println("Instrucción procesada: " + inputString);
-			}
+			//	//ñ
+			//	while (Serial.available() > 0) {
+			//		// Lee el byte entrante:
+			//		char basura = Serial.read();
+			//		// Opcional: Hacer algo con el byte leído, si es necesario.
+			//	}
+
+			//	// Ahora el buffer de entrada está limpio, puedes proceder a enviar tu respuesta
+			//	Serial.println("Instruccion procesada");
+			//}
 		}
 	}
 	//Punto origenCarte = { 0, 0 };

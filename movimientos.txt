@@ -1,0 +1,6 @@
+rd4 d6
+rd6 d2
+rd2 f2
+rf2 c6
+rc6 d6
+rd6 d4
